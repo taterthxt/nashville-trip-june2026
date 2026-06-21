@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Family Trip">
+<meta name="theme-color" content="#0d1117">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230d1117' width='100' height='100' rx='20'/><text y='50' x='50' font-size='50' text-anchor='middle' dominant-baseline='central'>☀️</text></svg>">
+<title>Family Trip Itinerary — June/July 2026</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #0d1117; color: #c9d1d9; min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; padding: 12px;
+  overflow-x: hidden; overflow-y: auto;
+}
+.main-content { transition: transform 0.3s ease; display: flex; flex-direction: column; align-items: center; width: 100%; }
+.main-content.panel-open { transform: translateX(-200px); }
+
+/* Header */
+.header { width: 100%; max-width: 1100px; position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; min-height: 40px; }
+.header-left { position: absolute; left: 0; }
+.header-center { text-align: center; }
+.header-center h1 { font-size: 18px; font-weight: 700; color: #ff69b4; }
+.header-center .subtitle { font-size: 10px; color: #8b949e; margin-top: 2px; }
+.header-right { position: absolute; right: 0; font-size: 10px; color: #8b949e; text-align: center; line-height: 1.5; }
+
+/* Progress Bar */
+.progress-wrapper { width: 100%; max-width: 1100px; margin-bottom: 12px; padding: 0 2px; }
+.progress-label { display: flex; justify-content: space-between; font-size: 9px; color: #8b949e; margin-bottom: 4px; }
+.progress-label .status { color: #ff69b4; font-weight: 700; }
+.progress-track { width: 100%; height: 14px; background: #161b22; border: 1px solid #30363d; border-radius: 7px; position: relative; overflow: visible; margin: 0 12px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #ff69b4, #ff1493); border-radius: 7px; transition: width 0.5s ease; position: relative; overflow: hidden; }
+.progress-fill::before { content:''; position:absolute; inset:0; border-radius:7px; background: radial-gradient(circle 2px at 15% 35%,rgba(255,255,255,.9) 0%,transparent 70%), radial-gradient(circle 1.5px at 35% 65%,rgba(255,255,255,.8) 0%,transparent 70%), radial-gradient(circle 2.5px at 55% 30%,rgba(255,255,255,.85) 0%,transparent 70%), radial-gradient(circle 1.5px at 75% 60%,rgba(255,255,255,.75) 0%,transparent 70%), radial-gradient(circle 2px at 90% 40%,rgba(255,255,255,.8) 0%,transparent 70%); animation: twinkle-1 2s ease-in-out infinite; }
+.progress-fill::after { content:''; position:absolute; inset:0; border-radius:7px; background: radial-gradient(circle 1.5px at 8% 55%,rgba(255,220,240,.85) 0%,transparent 70%), radial-gradient(circle 2px at 25% 25%,rgba(255,220,240,.75) 0%,transparent 70%), radial-gradient(circle 2px at 45% 70%,rgba(255,220,240,.8) 0%,transparent 70%), radial-gradient(circle 1.5px at 65% 45%,rgba(255,220,240,.9) 0%,transparent 70%), radial-gradient(circle 2.5px at 82% 30%,rgba(255,220,240,.7) 0%,transparent 70%); animation: twinkle-2 2.4s ease-in-out infinite; }
+@keyframes twinkle-1 { 0%,100%{opacity:.3} 15%{opacity:1} 30%{opacity:.2} 50%{opacity:.9} 70%{opacity:.15} 85%{opacity:.8} }
+@keyframes twinkle-2 { 0%,100%{opacity:.5} 20%{opacity:.1} 40%{opacity:1} 55%{opacity:.2} 75%{opacity:.85} 90%{opacity:.3} }
+.progress-star { position:absolute; top:50%; transform:translate(-50%,-50%); font-size:16px; filter:drop-shadow(0 0 4px #ff69b4); animation:pulse-star 1.5s ease-in-out infinite; z-index:5; left:0; }
+@keyframes pulse-star { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.15)} }
+</style>
+</head>
+<body>
+<div class="main-content" id="main-content">
+<div class="header">
+  <div class="header-left"><span style="font-size:22px;">☀️</span></div>
+  <div class="header-center">
+    <h1>Family Trip — June 24 – July 5, 2026</h1>
+    <div class="subtitle">Click a day for details • Drag activities to schedule</div>
+  </div>
+  <div class="header-right"><div>Christian, Jesse, Kenzie,</div><div>Ben, Ace, Sofia</div></div>
+</div>
+<div class="progress-wrapper">
+  <div class="progress-label"><span id="progress-status" class="status"></span><span id="progress-pct"></span></div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div><span class="progress-star" id="progress-star">⭐</span></div>
+</div>
+<style>
+/* Calendar Grid — 7 columns like a real calendar */
+.cal-weekday-row { display:none; }
+.cal-grid { width:100%; max-width:1100px; display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:#30363d; border:1px solid #30363d; border-radius:8px; }
+.cal-grid::before { content:'Sun\aMon\aTue\aWed\aThu\aFri\aSat'; white-space:pre; display:none; }
+.cal-header { background:#161b22; padding:6px 0; text-align:center; font-size:10px; font-weight:700; color:#8b949e; }
+.cal-cell { background:#0d1117; padding:6px; min-height:160px; display:flex; flex-direction:column; gap:3px; position:relative; }
+.cal-cell.inactive { background:#080b10; opacity:0.3; pointer-events:none; }
+.cal-cell.today { background:#1a0a14; outline:2px solid #ff69b4; outline-offset:-2px; z-index:1; }
+.cal-cell .date-num { font-size:11px; font-weight:700; color:#58a6ff; margin-bottom:3px; }
+.cal-cell.today .date-num { color:#ff69b4; }
+.cal-cell .weather-line { font-size:7px; color:#6e7681; margin-bottom:2px; }
+.cal-cell .rental-badge { position:absolute; top:4px; right:4px; font-size:7px; opacity:0.6; }
+
+/* Availability dots */
+.avail-row { display:flex; gap:2px; margin-bottom:3px; }
+.avail-pip { font-size:7px; font-weight:700; border-radius:2px; padding:0 2px; line-height:1.4; }
+.avail-pip.free { background:#122d1e; color:#3EA535; }
+.avail-pip.partial { background:#2d2410; color:#d29922; }
+
+/* Events inside cells */
+.ev { border-radius:4px; padding:3px 5px; font-size:8px; font-weight:600; cursor:pointer; transition:transform .15s, box-shadow .2s, opacity .2s; line-height:1.2; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.ev:hover { transform:scale(1.03); z-index:10; }
+.ev.highlighted { z-index:10; }
+.ev-travel { background:#0d1f30; border-left:3px solid #58a6ff; color:#93c5fd; }
+.ev-travel.highlighted { box-shadow:0 0 10px rgba(88,166,255,.5); }
+.ev-confirmed { background:#0d2818; border-left:3px solid #3EA535; color:#86efac; }
+.ev-confirmed.highlighted { box-shadow:0 0 10px rgba(62,165,53,.5); }
+.ev-pending { background:#1a1030; border-left:3px solid #a371f7; color:#c4a5f7; }
+.ev-pending.highlighted { box-shadow:0 0 10px rgba(163,113,247,.4); }
+.ev-open { background:#12141a; border-left:3px solid #484f58; color:#8b949e; }
+.ev-open.highlighted { box-shadow:0 0 10px rgba(72,79,88,.4); }
+.ev-milestone { background:#200a0d; border-left:3px solid #f85149; color:#fca5a5; }
+.ev-milestone.highlighted { box-shadow:0 0 10px rgba(248,81,73,.4); }
+.dimmed { opacity:0.08 !important; }
+
+/* Scheduled (drag-dropped) */
+.ev-scheduled { background:#1a1030; border-left:3px solid #a371f7; color:#c4a5f7; display:flex; align-items:center; justify-content:space-between; }
+.ev-scheduled.highlighted { box-shadow:0 0 10px rgba(163,113,247,.5); }
+.ev-scheduled .remove-btn { cursor:pointer; color:#f85149; font-size:9px; opacity:.6; margin-left:3px; }
+.ev-scheduled .remove-btn:hover { opacity:1; }
+
+/* Drag states */
+.cal-cell.drag-over { background:rgba(163,113,247,.08); outline:2px dashed #a371f7; outline-offset:-2px; }
+
+/* Legend */
+.legend { width:100%; max-width:1100px; display:flex; gap:14px; margin:10px 0; font-size:9px; color:#8b949e; align-items:center; flex-wrap:wrap; justify-content:center; }
+.legend-item { display:flex; align-items:center; gap:4px; }
+.legend-swatch { width:14px; height:10px; border-radius:2px; }
+.sw-travel { background:#0d1f30; border-left:3px solid #58a6ff; }
+.sw-confirmed { background:#0d2818; border-left:3px solid #3EA535; }
+.sw-pending { background:#1a1030; border-left:3px solid #a371f7; }
+.sw-open { background:#12141a; border-left:3px solid #484f58; }
+.sw-milestone { background:#200a0d; border-left:3px solid #f85149; }
+
+/* Potential Activities */
+.potential-activities { width:100%; max-width:1100px; margin-top:14px; background:#161b22; border:1px solid #30363d; border-radius:6px; padding:10px 14px; }
+.potential-activities h3 { font-size:10px; color:#a371f7; margin-bottom:6px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+.activity-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.activity-chip { background:#1c2128; border:1px dashed #a371f7; border-radius:12px; padding:3px 10px; font-size:9px; color:#c9d1d9; cursor:pointer; transition:background .2s,box-shadow .2s; }
+.activity-chip:hover { background:#231a3d; box-shadow:0 0 8px rgba(163,113,247,.3); }
+.activity-chip.dragging { opacity:.4; transform:scale(.95); }
+
+/* Detail Panel */
+.detail-panel { position:fixed; top:0; right:-420px; width:400px; height:100vh; background:#161b22; border-left:1px solid #30363d; padding:20px; overflow-y:auto; z-index:200; transition:right .3s ease; font-size:11px; line-height:1.6; }
+.detail-panel.open { right:0; }
+.detail-panel .close-btn { position:absolute; top:12px; right:12px; background:#21262d; border:1px solid #30363d; color:#8b949e; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:10px; }
+.detail-panel .close-btn:hover { color:#e8ecf0; border-color:#58a6ff; }
+.detail-panel h2 { font-size:14px; color:#58a6ff; margin-bottom:10px; font-weight:700; }
+.detail-panel h3 { font-size:11px; color:#e8ecf0; margin:10px 0 4px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
+.detail-panel p { color:#b0b8c8; margin-bottom:6px; }
+.detail-panel ul { padding-left:14px; margin-bottom:8px; }
+.detail-panel li { color:#b0b8c8; margin-bottom:3px; }
+.detail-panel .tag { display:inline-block; padding:2px 6px; border-radius:3px; font-size:9px; font-weight:700; margin-right:4px; }
+.panel-notes textarea { width:100%; min-height:60px; background:#0d1117; border:1px solid #30363d; border-radius:4px; color:#c9d1d9; font-size:10px; padding:8px; font-family:inherit; resize:vertical; }
+.panel-notes textarea:focus { outline:none; border-color:#58a6ff; }
+
+/* Comments Section */
+.comments-section { margin-top:12px; border-top:1px solid #30363d; padding-top:10px; }
+.comments-section h3 { font-size:11px; color:#ff69b4; margin-bottom:8px; }
+.comment-thread { max-height:250px; overflow-y:auto; margin-bottom:8px; }
+.comment-item { background:#0d1117; border:1px solid #30363d; border-radius:6px; padding:8px 10px; margin-bottom:6px; position:relative; }
+.comment-item .comment-author { font-size:9px; font-weight:700; color:#58a6ff; margin-bottom:2px; }
+.comment-item .comment-time { font-size:8px; color:#484f58; position:absolute; top:8px; right:10px; }
+.comment-item .comment-text { font-size:10px; color:#c9d1d9; line-height:1.4; word-wrap:break-word; }
+.comment-item .comment-delete { position:absolute; bottom:6px; right:10px; font-size:8px; color:#f85149; cursor:pointer; opacity:0; transition:opacity .2s; }
+.comment-item:hover .comment-delete { opacity:.7; }
+.comment-item .comment-delete:hover { opacity:1; }
+.comment-input-row { display:flex; gap:6px; align-items:flex-end; }
+.comment-input-row textarea { flex:1; min-height:36px; max-height:80px; background:#0d1117; border:1px solid #30363d; border-radius:4px; color:#c9d1d9; font-size:10px; padding:6px 8px; font-family:inherit; resize:vertical; }
+.comment-input-row textarea:focus { outline:none; border-color:#ff69b4; }
+.comment-send-btn { background:#ff69b4; color:#0d1117; border:none; border-radius:4px; padding:6px 10px; font-size:9px; font-weight:700; cursor:pointer; white-space:nowrap; height:36px; }
+.comment-send-btn:hover { background:#ff1493; }
+.comment-name-prompt { background:#161b22; border:1px solid #30363d; border-radius:6px; padding:10px; margin-bottom:8px; text-align:center; }
+.comment-name-prompt input { background:#0d1117; border:1px solid #30363d; border-radius:4px; color:#c9d1d9; padding:6px 10px; font-size:11px; width:60%; margin:6px 0; text-align:center; }
+.comment-name-prompt input:focus { outline:none; border-color:#ff69b4; }
+.comment-name-prompt button { background:#ff69b4; color:#0d1117; border:none; border-radius:4px; padding:5px 12px; font-size:10px; font-weight:700; cursor:pointer; margin-left:6px; }
+.comment-name-prompt button:hover { background:#ff1493; }
+.restaurant-item { background:#0d1117; border:1px solid #30363d; border-radius:4px; padding:5px 7px; margin-bottom:3px; }
+.restaurant-item .r-name { font-weight:700; color:#e8ecf0; font-size:10px; }
+.restaurant-item .r-meta { color:#8b949e; font-size:9px; }
+
+/* Timeline Day View */
+.timeline { position:relative; margin-top:10px; }
+.timeline-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.timeline-header .tl-date { font-size:14px; font-weight:700; color:#ff69b4; }
+.timeline-header .tl-weather { font-size:11px; color:#8b949e; }
+.timeline-grid { position:relative; border-left:2px solid #30363d; margin-left:30px; }
+.timeline-hour { position:relative; height:40px; border-bottom:1px solid #1c2128; }
+.timeline-hour-label { position:absolute; left:-34px; top:-6px; font-size:8px; color:#484f58; width:28px; text-align:right; }
+.timeline-block { position:absolute; left:8px; right:8px; border-radius:4px; padding:3px 6px; font-size:9px; font-weight:600; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; z-index:2; }
+.timeline-block.tb-work { background:#2d2410; border-left:3px solid #d29922; color:#d29922; opacity:0.8; }
+.timeline-block.tb-travel { background:#0d1f30; border-left:3px solid #58a6ff; color:#93c5fd; }
+.timeline-block.tb-confirmed { background:#0d2818; border-left:3px solid #3EA535; color:#86efac; }
+.timeline-block.tb-pending { background:#1a1030; border-left:3px solid #a371f7; color:#c4a5f7; }
+.timeline-block.tb-open { background:#12141a; border-left:3px solid #484f58; color:#8b949e; }
+.timeline-block.tb-milestone { background:#200a0d; border-left:3px solid #f85149; color:#fca5a5; }
+.timeline-legend { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:8px; color:#8b949e; }
+.timeline-legend-item { display:flex; align-items:center; gap:3px; }
+.timeline-legend-swatch { width:10px; height:8px; border-radius:2px; }
+
+/* Day picker modal */
+.day-picker-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:300; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
+.day-picker-overlay.visible { opacity:1; pointer-events:all; }
+.day-picker { background:#161b22; border:1px solid #30363d; border-radius:10px; padding:16px; width:90%; max-width:320px; max-height:70vh; overflow-y:auto; }
+.day-picker h3 { font-size:13px; color:#ff69b4; margin-bottom:12px; text-align:center; }
+.day-picker .day-option { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border:1px solid #30363d; border-radius:6px; margin-bottom:6px; cursor:pointer; }
+.day-picker .day-option:active { background:#231a3d; border-color:#a371f7; }
+.day-picker .cancel-btn { display:block; width:100%; margin-top:10px; padding:10px; background:#21262d; border:1px solid #30363d; border-radius:6px; color:#8b949e; font-size:11px; text-align:center; cursor:pointer; }
+
+/* Mobile */
+@media (max-width: 768px) and (orientation: portrait) {
+  body { padding: 8px; }
+  .main-content.panel-open { transform:none; }
+  .header { flex-direction:column; gap:4px; }
+  .header-left,.header-right { position:static; }
+  .header-left { display:none; }
+  .header-center h1 { font-size:16px; white-space:normal; }
+  .header-center .subtitle { font-size:9px; }
+  .header-right { font-size:9px; }
+  .progress-wrapper { margin-bottom:8px; }
+
+  /* Legend: horizontal scroll on mobile */
+  .legend { gap:10px; font-size:8px; justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; margin:6px 0; }
+
+  /* Calendar: switch to scrollable list instead of 7-col grid */
+  .cal-weekday-row { display:none; }
+  .cal-header { display:none; }
+  .cal-grid { 
+    display:flex; flex-direction:column; gap:6px; 
+    background:transparent; border:none; border-radius:0;
+    max-width:100%;
+  }
+  .cal-cell { 
+    min-height:auto; padding:10px 12px; border-radius:8px;
+    border:1px solid #30363d; background:#161b22;
+  }
+  .cal-cell.inactive { display:none; }
+  .cal-cell.today { outline:2px solid #ff69b4; outline-offset:-1px; background:#1a0a14; }
+  .cal-cell .date-num { font-size:13px; margin-bottom:5px; }
+  .cal-cell .weather-line { font-size:9px; margin-bottom:4px; }
+  .cal-cell .rental-badge { font-size:9px; top:10px; right:12px; }
+  .avail-row { gap:3px; margin-bottom:5px; }
+  .avail-pip { font-size:9px; padding:1px 3px; }
+  .ev { font-size:11px; padding:6px 8px; margin-bottom:4px; white-space:normal; }
+
+  /* Panel: full screen overlay, respects actual viewport even when zoomed */
+  .detail-panel { 
+    width:100vw; height:100dvh; right:-105vw; top:0;
+    border-left:none; padding:16px; padding-top:50px;
+    position:fixed; z-index:200;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    transform-origin: top left;
+  }
+  .detail-panel.open { right:0; }
+  .detail-panel .close-btn { font-size:13px; padding:10px 16px; top:10px; right:10px; position:absolute; z-index:10; }
+  .detail-panel h2 { font-size:16px; }
+  .detail-panel h3 { font-size:12px; }
+  .detail-panel p { font-size:12px; }
+  .detail-panel li { font-size:12px; }
+
+  /* Comments */
+  .comments-section h3 { font-size:12px; }
+  .comment-item .comment-author { font-size:10px; }
+  .comment-item .comment-text { font-size:11px; }
+  .comment-item .comment-time { font-size:9px; }
+  .comment-input-row textarea { font-size:12px; min-height:44px; }
+  .comment-send-btn { font-size:11px; padding:10px 14px; height:44px; }
+  .comment-name-prompt input { font-size:14px; width:70%; padding:10px; }
+  .comment-name-prompt button { font-size:12px; padding:8px 16px; }
+
+  /* Activities */
+  .potential-activities { max-width:100%; margin-top:12px; }
+  .potential-activities h3 { font-size:11px; }
+  .activity-chip { padding:8px 14px; font-size:12px; min-height:40px; display:flex; align-items:center; }
+
+  /* Day picker */
+  .day-picker { max-width:90%; }
+  .day-picker .day-option { padding:12px 14px; font-size:13px; }
+  .day-picker .cancel-btn { padding:12px; font-size:13px; }
+}
+</style>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch sw-travel"></div>Travel</div>
+  <div class="legend-item"><div class="legend-swatch sw-confirmed"></div>Confirmed</div>
+  <div class="legend-item"><div class="legend-swatch sw-pending"></div>Pending</div>
+  <div class="legend-item"><div class="legend-swatch sw-open"></div>Open</div>
+  <div class="legend-item"><div class="legend-swatch sw-milestone"></div>Milestone</div>
+  <div class="legend-item"><span class="avail-pip free">C</span> Free</div>
+  <div class="legend-item"><span class="avail-pip partial">K</span> Partial</div>
+</div>
+
+<!-- Calendar (headers + cells in one grid) -->
+<div class="cal-grid" id="cal-grid">
+  <div class="cal-header">Sun</div><div class="cal-header">Mon</div><div class="cal-header">Tue</div>
+  <div class="cal-header">Wed</div><div class="cal-header">Thu</div><div class="cal-header">Fri</div><div class="cal-header">Sat</div>
+</div>
+
+<!-- Potential Activities -->
+<div class="potential-activities">
+  <h3>Potential Activities</h3>
+  <div class="activity-chips">
+    <div class="activity-chip" data-activity="thrifting">🛍️ Thrifting</div>
+    <div class="activity-chip" data-activity="bar-hopping">🍺 Bar Hopping</div>
+    <div class="activity-chip" data-activity="family-breakfast">🥞 Family Breakfast</div>
+    <div class="activity-chip" data-activity="family-dinner">🍽️ Family Dinner</div>
+    <div class="activity-chip" data-activity="swimming">🏊 Swimming / Lake Day</div>
+    <div class="activity-chip" data-activity="random">🎲 Random Activity</div>
+  </div>
+</div>
+</div><!-- end main-content -->
+
+<!-- Day Picker Modal -->
+<div class="day-picker-overlay" id="day-picker-overlay">
+  <div class="day-picker"><h3 id="day-picker-title"></h3><div id="day-picker-options"></div><div class="cancel-btn" id="day-picker-cancel">Cancel</div></div>
+</div>
+<!-- Detail Panel -->
+<div class="detail-panel" id="detail-panel">
+  <button class="close-btn" id="panel-close">✕ Close</button>
+  <div id="panel-content"></div>
+</div>
+
+<script>
+// === DATA ===
+const everyone = ['Christian','Jesse','Kenzie','Ben','Ace','Sofia'];
+const weather = {
+  '6/22':null,'6/23':null,
+  '6/24':{hi:83,lo:66,icon:'☀️',loc:'Nashville, TN'},
+  '6/25':{hi:77,lo:70,icon:'🌤️',loc:'Bowling Green, KY'},
+  '6/26':{hi:77,lo:70,icon:'🌤️',loc:'Bowling Green, KY'},
+  '6/27':{hi:87,lo:69,icon:'⛅',loc:'Nashville, TN'},
+  '6/28':{hi:83,lo:72,icon:'⛅',loc:'Bowling Green, KY'},
+  '6/29':{hi:84,lo:72,icon:'🌤️',loc:'Bowling Green, KY'},
+  '6/30':{hi:85,lo:70,icon:'☀️',loc:'Bowling Green, KY'},
+  '7/1':{hi:87,lo:71,icon:'⛅',loc:'Bowling Green, KY'},
+  '7/2':{hi:88,lo:72,icon:'🌦️',loc:'Bowling Green, KY'},
+  '7/3':{hi:89,lo:71,icon:'⛅',loc:'Spring Hill, TN'},
+  '7/4':{hi:90,lo:72,icon:'🌤️',loc:'Spring Hill, TN'},
+  '7/5':{hi:87,lo:71,icon:'⛅',loc:'Bowling Green, KY'}
+};
+const rentalDates = ['6/24','6/25','6/26','6/27','6/28','6/29','6/30','7/1','7/2','7/3'];
+const workSchedules = {
+  Christian:[{d:'6/24',t:'10am–4:30pm'},{d:'6/25',t:'10am–4:30pm'},{d:'6/26',t:'10am–4:30pm'}],
+  Jesse:[{d:'6/26',t:'6am–6pm'},{d:'7/1',t:'6am–6pm'},{d:'7/2',t:'6am–6pm'}],
+  Kenzie:[{d:'6/24',t:'4pm–10pm'},{d:'6/26',t:'8am–4:30pm'},{d:'6/29',t:'1:30pm–10pm'},{d:'6/30',t:'12pm–6pm'},{d:'7/1',t:'3:30pm–10pm'},{d:'7/3',t:'7am–3:30pm'}],
+  Ben:[{d:'6/24',t:'2:30pm–10pm'},{d:'6/25',t:'12pm–8:30pm'},{d:'6/26',t:'3:30pm–10pm'},{d:'6/29',t:'12pm–6pm'},{d:'7/1',t:'2pm–10pm'},{d:'7/2',t:'2:30pm–10pm'},{d:'7/3',t:'9am–5:30pm'}],
+  Ace:[{d:'6/24',t:'1pm–10pm'},{d:'6/29',t:'1pm–10pm'},{d:'7/1',t:'1pm–10pm'}],
+  Sofia:[{d:'6/26',t:'7pm–7am'},{d:'6/27',t:'7pm–7am'},{d:'7/1',t:'7pm–7am'},{d:'7/2',t:'7pm–7am'}]
+};
+
+// Events (activities only) — hrs:[startHour, endHour] for timeline (24h format)
+const events = {
+  '6/24':[
+    {type:'travel',title:'✈️ DEN→BNA',time:'5:40am–9:10am',who:['Christian'],detail:'Fly in, pick up rental.',drive:'Airport→Mom\'s: 45min–1hr',hrs:[5.5,9.5]},
+    {type:'confirmed',title:'🎵 Parade Practice',time:'After 4:30pm',who:['Christian'],detail:'Mount Juliet, coach\'s house.',hrs:[16.5,18]},
+    {type:'travel',title:'🚗 Drive to BG',time:'Evening',who:['Christian'],detail:'Mount Juliet → Bowling Green.',drive:'Mom\'s→BG: 30–45min',hrs:[19,20]}
+  ],
+  '6/25':[
+    {type:'confirmed',title:'🎵 Parade Practice',time:'6:30pm–8:00pm',who:['Christian'],detail:'Mount Juliet, coach\'s house.',hrs:[18.5,20]},
+    {type:'confirmed',title:'🍹 El Maz Thirsty Thurs',time:'Evening',who:['Jesse','Kenzie','Ace','Sofia'],detail:'Thirsty Thursday at El Maz.',hrs:[19,23]}
+  ],
+  '6/26':[
+    {type:'open',title:'🟢 Free Evening',time:'After 6pm',who:['Christian','Jesse','Kenzie','Ace'],detail:'Ben/Sofia working evening shifts.',hrs:[18,22]}
+  ],
+  '6/27':[
+    {type:'milestone',title:'🎺 Parade',time:'10:00am (2.5hrs)',who:everyone,detail:'Christian performing. Everyone watching.',hrs:[10,12.5]},
+    {type:'confirmed',title:'🍖 Seoul Garden KBBQ',time:'~1:00pm',who:everyone,detail:'4928 Edmondson Pike #101, Nashville, TN 37211',hrs:[13,15]},
+    {type:'confirmed',title:'🏳️‍🌈 Pride Festival',time:'Afternoon',who:everyone,detail:'After KBBQ.',hrs:[15,18]},
+    {type:'confirmed',title:'🌃 Night Out',time:'Evening',who:everyone,detail:'Nashville night out.',hrs:[20,24]}
+  ],
+  '6/28':[
+    {type:'confirmed',title:'🥞 Hangover Brunch',time:'Morning',who:['Christian','Jesse','Kenzie','Ace','Sofia'],detail:'Recovery brunch.',hrs:[10,12]},
+    {type:'open',title:'🟢 Open Afternoon',time:'Afternoon',who:['Christian','Jesse','Kenzie','Ace','Sofia'],detail:'Ben working 2-10pm.',hrs:[13,17]}
+  ],
+  '6/29':[
+    {type:'open',title:'🟢 Open Day',time:'All day',who:['Christian','Jesse'],detail:'C & Jesse fully free. Others have shifts. Ace works 1-10pm.',hrs:[9,21]}
+  ],
+  '6/30':[
+    {type:'open',title:'🟢 Open Morning',time:'Until noon',who:['Christian','Jesse','Ben','Ace','Sofia'],detail:'Kenzie works 12-6pm.',hrs:[9,12]},
+    {type:'confirmed',title:'🍽️ Topper + Fishbowl',time:'Evening',who:everyone,detail:'Dinner at Topper + Fishbowl.',hrs:[18,21]}
+  ],
+  '7/1':[
+    {type:'open',title:'🟢 Open Morning',time:'Until 2pm',who:['Christian','Kenzie','Ace','Sofia'],detail:'Jesse all day, Ben/Kenzie afternoon.',hrs:[9,14]}
+  ],
+  '7/2':[
+    {type:'open',title:'🟢 Open Daytime',time:'Until 2:30pm',who:['Christian','Kenzie','Ace','Sofia'],detail:'Jesse all day, Ben starts 2:30pm.',hrs:[9,14.5]}
+  ],
+  '7/3':[
+    {type:'travel',title:'🚗 Leave for Spring Hill',time:'~4:00pm',who:everyone,detail:'Drop rental at BNA en route.',drive:'BG→Spring Hill: 1hr 40min–2hrs',hrs:[16,18]},
+    {type:'confirmed',title:'🔑 Rental Drop-off',time:'En route',who:['Christian','Jesse','Kenzie'],detail:'Drop car at airport, transfer to J/K\'s car.',hrs:[16.5,17]}
+  ],
+  '7/4':[
+    {type:'milestone',title:'🎆 4th of July Party',time:'All day',who:everyone,detail:'Party at Kenzie\'s family home.',hrs:[11,22]}
+  ],
+  '7/5':[
+    {type:'travel',title:'🚗 Head to Airport',time:'Daytime',who:everyone,detail:'*Could go SH→BNA direct (~45min) vs back to BG.',drive:'SH→BNA: ~45min',hrs:[15,16]},
+    {type:'travel',title:'✈️ BNA→DEN',time:'10:40pm–12:30am',who:['Christian'],detail:'Depart Nashville, land Denver 12:30am.',hrs:[22.5,24]}
+  ]
+};
+
+const potentialActivities = [
+  {id:'thrifting',label:'🛍️ Thrifting',desc:'Local thrift stores.'},
+  {id:'bar-hopping',label:'🍺 Bar Hopping',desc:'Broadway or local spots.'},
+  {id:'family-breakfast',label:'🥞 Family Breakfast',desc:'Breakfast together.'},
+  {id:'family-dinner',label:'🍽️ Family Dinner',desc:'Dinner together.'},
+  {id:'swimming',label:'🏊 Swimming/Lake',desc:'Pool or lake day.'},
+  {id:'random',label:'🎲 Random',desc:'Spontaneous fun.'}
+];
+
+// === BUILD CALENDAR (2 weeks: Jun 22–28, Jun 29–Jul 5) ===
+const calGrid = document.getElementById('cal-grid');
+const calDates = [
+  // Week 1: Sun Jun 21 – Sat Jun 27
+  '6/21','6/22','6/23','6/24','6/25','6/26','6/27',
+  // Week 2: Sun Jun 28 – Sat Jul 4
+  '6/28','6/29','6/30','7/1','7/2','7/3','7/4',
+  // Week 3: Sun Jul 5 (just one day)
+  '7/5','7/6','7/7','7/8','7/9','7/10','7/11'
+];
+const tripDates = ['6/24','6/25','6/26','6/27','6/28','6/29','6/30','7/1','7/2','7/3','7/4','7/5'];
+const today = new Date();
+const todayStr = `${today.getMonth()+1}/${today.getDate()}`;
+
+calDates.forEach(dateStr => {
+  const cell = document.createElement('div');
+  cell.className = 'cal-cell';
+  cell.dataset.date = dateStr;
+  const isTrip = tripDates.includes(dateStr);
+  if (!isTrip) { cell.classList.add('inactive'); cell.innerHTML = `<span class="date-num">${dateStr.split('/')[1]}</span>`; calGrid.appendChild(cell); return; }
+  if (dateStr === todayStr) cell.classList.add('today');
+
+  const dayNum = dateStr.split('/')[1];
+  const month = dateStr.startsWith('7') ? 'Jul' : 'Jun';
+  const w = weather[dateStr];
+  const rental = rentalDates.includes(dateStr) ? '<span class="rental-badge">🚗</span>' : '';
+  const weatherLine = w ? `<div class="weather-line">${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}</div>` : '';
+
+  // Availability
+  let availHtml = '<div class="avail-row">';
+  everyone.forEach(p => {
+    const shift = (workSchedules[p]||[]).find(s => s.d === dateStr);
+    const cls = shift ? 'partial' : 'free';
+    availHtml += `<span class="avail-pip ${cls}">${p[0]}</span>`;
+  });
+  availHtml += '</div>';
+
+  // Events
+  let evHtml = '';
+  (events[dateStr]||[]).forEach((ev,i) => {
+    evHtml += `<div class="ev ev-${ev.type}" data-date="${dateStr}" data-idx="${i}">${ev.title}</div>`;
+  });
+
+  cell.innerHTML = `<span class="date-num">${month} ${dayNum}</span>${rental}${weatherLine}${availHtml}${evHtml}`;
+  calGrid.appendChild(cell);
+});
+
+// === INTERACTIONS ===
+const panel = document.getElementById('detail-panel');
+const panelContent = document.getElementById('panel-content');
+const mainContent = document.getElementById('main-content');
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+function closePanel() { panel.classList.remove('open'); mainContent.classList.remove('panel-open'); document.querySelectorAll('.ev,.ev-scheduled').forEach(b=>b.classList.remove('highlighted','dimmed')); resetZoomOnClose(); }
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.addEventListener('click', e => { if (!panel.contains(e.target) && !e.target.closest('.ev') && !e.target.closest('.ev-scheduled') && !e.target.closest('.avail-row') && !e.target.closest('.activity-chip') && !e.target.closest('.cal-cell')) closePanel(); });
+
+// Mobile zoom reset when panel opens/closes
+function resetZoomOnOpen() {
+  if (window.innerWidth > 768) return;
+  const vp = document.querySelector('meta[name="viewport"]');
+  if (vp) vp.setAttribute('content','width=device-width, initial-scale=1, maximum-scale=1');
+}
+function resetZoomOnClose() {
+  if (window.innerWidth > 768) return;
+  const vp = document.querySelector('meta[name="viewport"]');
+  if (vp) vp.setAttribute('content','width=device-width, initial-scale=1');
+}
+
+// Hover (desktop) — event delegation
+if (!isTouchDevice) {
+  calGrid.addEventListener('mouseover', e => {
+    const t = e.target.closest('.ev,.ev-scheduled');
+    if (!t) return;
+    document.querySelectorAll('.ev,.ev-scheduled').forEach(b => { b===t ? b.classList.add('highlighted') : b.classList.add('dimmed'); });
+  });
+  calGrid.addEventListener('mouseout', e => {
+    const t = e.target.closest('.ev,.ev-scheduled');
+    if (!t) return;
+    document.querySelectorAll('.ev,.ev-scheduled').forEach(b => b.classList.remove('highlighted','dimmed'));
+  });
+}
+
+// Click events
+calGrid.addEventListener('click', e => {
+  const evEl = e.target.closest('.ev');
+  const availEl = e.target.closest('.avail-row');
+  const cellEl = e.target.closest('.cal-cell');
+  if (evEl) { e.stopPropagation(); openEventPanel(evEl.dataset.date, +evEl.dataset.idx); return; }
+  if (availEl && cellEl) { e.stopPropagation(); openAvailPanel(cellEl.dataset.date); return; }
+  if (cellEl && !cellEl.classList.contains('inactive')) { e.stopPropagation(); openDayTimeline(cellEl.dataset.date); return; }
+});
+
+function openEventPanel(dateStr, idx) {
+  const ev = (events[dateStr]||[])[idx];
+  if (!ev) return;
+  const w = weather[dateStr];
+  let driveHtml = ev.drive ? `<h3>Drive Time</h3><p>${ev.drive}</p>` : '';
+  let restHtml = '';
+  if (ev.restaurants) { restHtml = `<h3>🍖 Korean BBQ Options</h3>${ev.restaurants.map(r=>`<div class="restaurant-item"><div class="r-name">${r.name}</div><div class="r-meta">${r.meta}</div></div>`).join('')}`; }
+  panelContent.innerHTML = `
+    <h2>${ev.title}</h2>
+    <h3>Time</h3><p>${ev.time}</p>
+    <h3>Weather</h3><p>${w?`${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}`:'—'}</p>
+    ${driveHtml}
+    <h3>Who</h3><p>${ev.who.length===everyone.length?'Everyone':ev.who.join(', ')}</p>
+    <h3>Details</h3><p>${ev.detail}</p>
+    ${restHtml}
+    <div class="comments-section" id="comments-section" data-key="trip-comments-${dateStr}"></div>
+  `;
+  initComments(`trip-comments-${dateStr}`);
+  panel.classList.add('open'); mainContent.classList.add('panel-open'); resetZoomOnOpen();
+}
+
+function openAvailPanel(dateStr) {
+  const w = weather[dateStr];
+  let html = `<h2>👥 Availability — ${dateStr}</h2><h3>Schedule</h3><ul>`;
+  everyone.forEach(p => {
+    const shift = (workSchedules[p]||[]).find(s=>s.d===dateStr);
+    html += `<li><strong>${p}</strong> — ${shift ? '⚠️ Working '+shift.t : '✅ Free all day'}</li>`;
+  });
+  html += `</ul><h3>Weather</h3><p>${w?`${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}`:'—'}</p>`;
+  html += `<div class="comments-section" id="comments-section" data-key="trip-comments-${dateStr}"></div>`;
+  panelContent.innerHTML = html;
+  initComments(`trip-comments-${dateStr}`);
+  panel.classList.add('open'); mainContent.classList.add('panel-open'); resetZoomOnOpen();
+}
+
+// Work schedule parsed to hours for timeline
+const workHours = {
+  Christian:[{d:'6/24',s:10,e:16.5},{d:'6/25',s:10,e:16.5},{d:'6/26',s:10,e:16.5}],
+  Jesse:[{d:'6/26',s:6,e:18},{d:'7/1',s:6,e:18},{d:'7/2',s:6,e:18}],
+  Kenzie:[{d:'6/24',s:16,e:22},{d:'6/26',s:8,e:16.5},{d:'6/29',s:13.5,e:22},{d:'6/30',s:12,e:18},{d:'7/1',s:15.5,e:22},{d:'7/3',s:7,e:15.5}],
+  Ben:[{d:'6/24',s:14.5,e:22},{d:'6/25',s:12,e:20.5},{d:'6/26',s:15.5,e:22},{d:'6/29',s:12,e:18},{d:'7/1',s:14,e:22},{d:'7/2',s:14.5,e:22},{d:'7/3',s:9,e:17.5}],
+  Ace:[{d:'6/24',s:13,e:22},{d:'6/29',s:13,e:22},{d:'7/1',s:13,e:22}],
+  Sofia:[{d:'6/26',s:19,e:24},{d:'6/27',s:19,e:24},{d:'7/1',s:19,e:24},{d:'7/2',s:19,e:24}]
+};
+
+// Person colors for work blocks
+const personColors = {Christian:'#58a6ff',Jesse:'#3EA535',Kenzie:'#a371f7',Ben:'#f85149',Ace:'#d29922',Sofia:'#ff69b4'};
+
+function openDayTimeline(dateStr) {
+  const w = weather[dateStr];
+  const month = dateStr.startsWith('7') ? 'Jul' : 'Jun';
+  const dayNum = dateStr.split('/')[1];
+  const startHour = 5; // 5am
+  const endHour = 25;  // 1am next day
+  const hourHeight = 40; // px per hour
+
+  // Build hour grid
+  let gridHtml = '';
+  for (let h = startHour; h < endHour; h++) {
+    const label = h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : h < 24 ? `${h-12}pm` : `${h-24}am`;
+    gridHtml += `<div class="timeline-hour"><span class="timeline-hour-label">${label}</span></div>`;
+  }
+
+  // Build work blocks
+  let blocksHtml = '';
+  let colIdx = 0;
+  everyone.forEach((person,pi) => {
+    const shifts = (workHours[person]||[]).filter(s => s.d === dateStr);
+    shifts.forEach(shift => {
+      const top = (shift.s - startHour) * hourHeight;
+      const height = (shift.e - shift.s) * hourHeight;
+      const left = 8 + (pi * 18);
+      const width = 16;
+      blocksHtml += `<div class="timeline-block tb-work" style="top:${top}px;height:${height}px;left:${left}px;width:${width}px;right:auto;font-size:7px;padding:2px;writing-mode:vertical-rl;text-orientation:mixed;border-left:2px solid ${personColors[person]};background:rgba(45,36,16,.7);" title="${person}: Working">${person[0]}</div>`;
+    });
+  });
+
+  // Build event blocks
+  const dayEvents = events[dateStr]||[];
+  dayEvents.forEach((ev,i) => {
+    if (!ev.hrs) return;
+    const top = (ev.hrs[0] - startHour) * hourHeight;
+    const height = Math.max((ev.hrs[1] - ev.hrs[0]) * hourHeight, 20);
+    blocksHtml += `<div class="timeline-block tb-${ev.type}" style="top:${top}px;height:${height}px;left:${8 + everyone.length*18 + 6}px;right:8px;cursor:pointer;" data-date="${dateStr}" data-idx="${i}">${ev.title}</div>`;
+  });
+
+  const totalHeight = (endHour - startHour) * hourHeight;
+
+  let html = `
+    <div class="timeline">
+      <div class="timeline-header">
+        <span class="tl-date">${month} ${dayNum}</span>
+        <span class="tl-weather">${w ? `${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}` : ''}</span>
+      </div>
+      <div class="timeline-legend">
+        ${everyone.map(p => `<div class="timeline-legend-item"><div class="timeline-legend-swatch" style="background:${personColors[p]}"></div>${p[0]}</div>`).join('')}
+        <div class="timeline-legend-item"><div class="timeline-legend-swatch" style="background:#d29922"></div>Work</div>
+      </div>
+      <div style="overflow-y:auto;max-height:60vh;margin-top:8px;">
+        <div class="timeline-grid" style="height:${totalHeight}px;">
+          ${gridHtml}
+          ${blocksHtml}
+        </div>
+      </div>
+    </div>
+    <div class="comments-section" id="comments-section" data-key="trip-comments-${dateStr}"></div>
+  `;
+
+  panelContent.innerHTML = html;
+  // Click event blocks to open event detail
+  panelContent.querySelectorAll('.timeline-block[data-idx]').forEach(b => {
+    b.addEventListener('click', () => openEventPanel(b.dataset.date, +b.dataset.idx));
+  });
+  initComments(`trip-comments-${dateStr}`);
+  panel.classList.add('open'); mainContent.classList.add('panel-open'); resetZoomOnOpen();
+}
+
+// === FIREBASE SETUP ===
+const DB_URL = 'https://family-trip---june-2026-default-rtdb.firebaseio.com';
+
+// Firebase REST helpers (no SDK needed — keeps it a single HTML file)
+async function fbGet(path) {
+  try { const r = await fetch(`${DB_URL}/${path}.json`); return await r.json(); } catch(e){ return null; }
+}
+async function fbPush(path, data) {
+  try { await fetch(`${DB_URL}/${path}.json`, {method:'POST', body:JSON.stringify(data), headers:{'Content-Type':'application/json'}}); } catch(e){}
+}
+async function fbDelete(path) {
+  try { await fetch(`${DB_URL}/${path}.json`, {method:'DELETE'}); } catch(e){}
+}
+
+// === COMMENT SYSTEM (Firebase-powered) ===
+function getCommentUser() { try { return localStorage.getItem('trip-comment-user')||''; } catch(e){ return ''; } }
+function setCommentUser(name) { try { localStorage.setItem('trip-comment-user',name); } catch(e){} }
+
+let activeCommentKey = null;
+let commentPollInterval = null;
+
+function initComments(key) {
+  const section = document.getElementById('comments-section');
+  if (!section) return;
+  activeCommentKey = key;
+  const user = getCommentUser();
+  if (!user) {
+    section.innerHTML = `
+      <h3>💬 Comments</h3>
+      <div class="comment-name-prompt">
+        <div style="font-size:10px;color:#8b949e;">What is your alter ego?</div>
+        <input type="text" id="comment-name-input" placeholder="e.g. Christian, Jesse..." maxlength="20">
+        <button id="comment-name-save">Join</button>
+      </div>
+    `;
+    const inp = document.getElementById('comment-name-input');
+    const btn = document.getElementById('comment-name-save');
+    btn.addEventListener('click', () => { const n=inp.value.trim(); if(n){setCommentUser(n);initComments(key);} });
+    inp.addEventListener('keydown', e => { if(e.key==='Enter'){const n=inp.value.trim(); if(n){setCommentUser(n);initComments(key);}} });
+    return;
+  }
+  loadAndRenderComments(key, user);
+  // Poll for new comments every 5s (real-time-ish without WebSocket complexity)
+  if (commentPollInterval) clearInterval(commentPollInterval);
+  commentPollInterval = setInterval(() => { if(activeCommentKey===key) loadAndRenderComments(key, user); }, 5000);
+}
+
+async function loadAndRenderComments(key, user) {
+  const section = document.getElementById('comments-section');
+  if (!section) return;
+  // Don't re-render if user is typing (prevents keyboard dismiss on mobile)
+  const input = document.getElementById('comment-input');
+  if (input && document.activeElement === input) return;
+  const data = await fbGet(`comments/${key}`);
+  const comments = [];
+  if (data) { Object.entries(data).forEach(([id, c]) => comments.push({...c, id})); }
+  comments.sort((a,b) => (a.ts||0)-(b.ts||0));
+  renderComments(key, user, comments);
+}
+
+function renderComments(key, user, comments) {
+  const section = document.getElementById('comments-section');
+  if (!section) return;
+  const threadHtml = comments.map(c => `
+    <div class="comment-item">
+      <div class="comment-author">${escHtml(c.author)}</div>
+      <div class="comment-time">${c.time||''}</div>
+      <div class="comment-text">${escHtml(c.text)}</div>
+      ${c.author===user?`<span class="comment-delete" data-cid="${c.id}">delete</span>`:''}
+    </div>
+  `).join('');
+  section.innerHTML = `
+    <h3>💬 Comments <span style="font-size:8px;color:#484f58;font-weight:400;">(posting as ${escHtml(user)})</span></h3>
+    <div class="comment-thread">${threadHtml||'<div style="font-size:9px;color:#484f58;padding:8px;">No comments yet. Be the first!</div>'}</div>
+    <div class="comment-input-row">
+      <textarea id="comment-input" placeholder="Add a comment..."></textarea>
+      <button class="comment-send-btn" id="comment-send">Send</button>
+    </div>
+  `;
+  const thread = section.querySelector('.comment-thread');
+  if (thread) thread.scrollTop = thread.scrollHeight;
+  document.getElementById('comment-send').addEventListener('click', () => postComment(key, user));
+  document.getElementById('comment-input').addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();postComment(key,user);} });
+  section.querySelectorAll('.comment-delete').forEach(btn => {
+    btn.addEventListener('click', async () => { await fbDelete(`comments/${key}/${btn.dataset.cid}`); loadAndRenderComments(key, user); });
+  });
+}
+
+async function postComment(key, user) {
+  const input = document.getElementById('comment-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  const now = new Date();
+  const time = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()%12||12}:${String(now.getMinutes()).padStart(2,'0')}${now.getHours()>=12?'pm':'am'}`;
+  await fbPush(`comments/${key}`, {author:user, text, time, ts:Date.now()});
+  loadAndRenderComments(key, user);
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// === DRAG & DROP ===
+const chips = document.querySelectorAll('.activity-chip');
+const cells = document.querySelectorAll('.cal-cell:not(.inactive)');
+chips.forEach(chip => {
+  chip.setAttribute('draggable','true');
+  chip.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain',chip.dataset.activity); chip.classList.add('dragging'); });
+  chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); cells.forEach(c=>c.classList.remove('drag-over')); });
+  chip.addEventListener('click', e => {
+    e.stopPropagation();
+    const act = potentialActivities.find(a=>a.id===chip.dataset.activity);
+    if (!act) return;
+    if (isTouchDevice) { openDayPicker(act); }
+    else { panelContent.innerHTML=`<h2>${act.label}</h2><p>${act.desc}</p><p style="font-size:9px;color:#6e7681;">💡 Drag onto a day to schedule.</p>`; panel.classList.add('open'); mainContent.classList.add('panel-open'); }
+  });
+});
+cells.forEach(cell => {
+  cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
+  cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+  cell.addEventListener('drop', e => { e.preventDefault(); cell.classList.remove('drag-over'); const act=potentialActivities.find(a=>a.id===e.dataTransfer.getData('text/plain')); if(act){ if(act.id==='random'){const t=prompt('What activity?');if(t)addScheduled(cell,act,t);}else{addScheduled(cell,act);}} });
+});
+function addScheduled(cell, act, customLabel) {
+  const schedId = customLabel ? `random-${customLabel.replace(/\s+/g,'-').toLowerCase()}-${Date.now()}` : act.id;
+  if (!customLabel && cell.querySelector(`[data-sched="${act.id}"]`)) return;
+  const el = document.createElement('div');
+  el.className = 'ev ev-scheduled'; el.dataset.sched = schedId;
+  const label = customLabel ? `🎲 ${customLabel}` : act.label;
+  el.innerHTML = `<span>${label}</span><span class="remove-btn">✕</span>`;
+  el.querySelector('.remove-btn').addEventListener('click', async e => { e.stopPropagation(); el.remove(); await saveScheduleToFB(); });
+  cell.appendChild(el); saveScheduleToFB();
+}
+async function saveScheduleToFB() {
+  const s = {};
+  cells.forEach(c => {
+    const items = [...c.querySelectorAll('[data-sched]')].map(e => {
+      const text = e.querySelector('span')?.textContent || e.dataset.sched;
+      return {id: e.dataset.sched, label: text};
+    });
+    if (items.length) s[c.dataset.date.replace('/','-')] = items;
+  });
+  try { await fetch(`${DB_URL}/schedule.json`, {method:'PUT', body:JSON.stringify(s), headers:{'Content-Type':'application/json'}}); } catch(e){}
+}
+async function loadScheduleFromFB() {
+  try {
+    const data = await fbGet('schedule');
+    if (!data) return;
+    Object.entries(data).forEach(([dateKey, items]) => {
+      const dateStr = dateKey.replace('-','/');
+      const cell = document.querySelector(`.cal-cell[data-date="${dateStr}"]`);
+      if (!cell) return;
+      items.forEach(item => {
+        if (cell.querySelector(`[data-sched="${item.id}"]`)) return;
+        const el = document.createElement('div');
+        el.className = 'ev ev-scheduled'; el.dataset.sched = item.id;
+        el.innerHTML = `<span>${item.label}</span><span class="remove-btn">✕</span>`;
+        el.querySelector('.remove-btn').addEventListener('click', async e => { e.stopPropagation(); el.remove(); await saveScheduleToFB(); });
+        cell.appendChild(el);
+      });
+    });
+  } catch(e){}
+}
+loadScheduleFromFB();
+// Poll for schedule changes every 10s
+setInterval(async () => {
+  // Skip if user is interacting with inputs
+  if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+  // Clear existing scheduled items and reload
+  cells.forEach(c => c.querySelectorAll('[data-sched]').forEach(el => el.remove()));
+  await loadScheduleFromFB();
+}, 10000);
+
+// Mobile day picker
+const dpo = document.getElementById('day-picker-overlay');
+document.getElementById('day-picker-cancel').addEventListener('click',()=>dpo.classList.remove('visible'));
+dpo.addEventListener('click',e=>{if(e.target===dpo) dpo.classList.remove('visible');});
+function openDayPicker(act) {
+  document.getElementById('day-picker-title').textContent=`Schedule "${act.label}" to:`;
+  const opts = document.getElementById('day-picker-options'); opts.innerHTML='';
+  tripDates.forEach(d=>{const w=weather[d]; const o=document.createElement('div'); o.className='day-option'; o.innerHTML=`<span>${d}</span><span>${w?w.icon+' '+w.hi+'°':''}</span>`; o.addEventListener('click',()=>{const cell=document.querySelector(`.cal-cell[data-date="${d}"]`); if(cell){if(act.id==='random'){const t=prompt('What activity?');if(t)addScheduled(cell,act,t);}else{addScheduled(cell,act);}} dpo.classList.remove('visible');}); opts.appendChild(o);});
+  dpo.classList.add('visible');
+}
+
+// === PROGRESS BAR ===
+function updateProgress() {
+  const start=new Date('2026-06-24T00:00:00'),end=new Date('2026-07-06T00:00:00'),now=new Date();
+  const fill=document.getElementById('progress-fill'),star=document.getElementById('progress-star');
+  const status=document.getElementById('progress-status'),pct=document.getElementById('progress-pct');
+  if(now<start){const d=Math.ceil((start-now)/864e5);fill.style.width='0%';star.style.left='0%';status.textContent=`🎵 ${d} day${d===1?'':'s'} until the family trip!`;pct.textContent='Not started';}
+  else if(now>=end){fill.style.width='100%';star.style.left='100%';status.textContent='✅ Trip complete!';pct.textContent='100%';}
+  else{const p=Math.min(100,Math.round((now-start)/(end-start)*100));fill.style.width=p+'%';star.style.left=p+'%';status.textContent=`⭐ Day ${Math.floor((now-start)/864e5)+1} of 12`;pct.textContent=p+'%';}
+}
+updateProgress(); setInterval(updateProgress,60000);
+</script>
+</body>
+</html>

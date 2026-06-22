@@ -179,7 +179,10 @@ body {
 .timeline-legend-item { display:flex; align-items:center; gap:3px; }
 .timeline-legend-swatch { width:10px; height:8px; border-radius:2px; }
 
-/* Notification Bubble */
+/* Pull to Refresh */
+.ptr-indicator { position:fixed; top:0; left:50%; transform:translateX(-50%) translateY(-40px); z-index:300; background:#161b22; border:1px solid #30363d; border-radius:20px; padding:8px 16px; font-size:10px; color:#8b949e; transition:transform .2s, opacity .2s; opacity:0; pointer-events:none; }
+.ptr-indicator.visible { transform:translateX(-50%) translateY(12px); opacity:1; }
+.ptr-indicator.refreshing { color:#ff69b4; }
 .notif-bubble { position:fixed; top:12px; right:12px; z-index:250; background:#ff69b4; color:#0d1117; border-radius:20px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer; display:none; align-items:center; gap:4px; box-shadow:0 2px 12px rgba(255,105,180,.4); animation:notif-pulse 2s ease-in-out infinite; }
 .notif-bubble.visible { display:flex; }
 .notif-bubble .notif-count { background:#0d1117; color:#ff69b4; border-radius:10px; padding:1px 6px; font-size:10px; }
@@ -299,6 +302,9 @@ body {
   </div>
 </div>
 </div><!-- end main-content -->
+
+<!-- Pull to Refresh Indicator -->
+<div class="ptr-indicator" id="ptr-indicator">↓ Pull to refresh</div>
 
 <!-- Notification Bubble -->
 <div class="notif-bubble" id="notif-bubble">💬 <span id="notif-text"></span></div>
@@ -799,6 +805,48 @@ function updateProgress() {
   else if(now>=end){fill.style.width='100%';star.style.left='100%';status.textContent='✅ Trip complete!';pct.textContent='100%';}
   else{const p=Math.min(100,Math.round((now-start)/(end-start)*100));fill.style.width=p+'%';star.style.left=p+'%';status.textContent=`⭐ Day ${Math.floor((now-start)/864e5)+1} of 12`;pct.textContent=p+'%';}
 }
+// === PULL TO REFRESH ===
+let ptrStartY = 0;
+let ptrActive = false;
+const ptrEl = document.getElementById('ptr-indicator');
+
+document.addEventListener('touchstart', e => {
+  if (window.scrollY === 0 && !panel.classList.contains('open')) {
+    ptrStartY = e.touches[0].clientY;
+    ptrActive = true;
+  }
+}, {passive:true});
+
+document.addEventListener('touchmove', e => {
+  if (!ptrActive) return;
+  const diff = e.touches[0].clientY - ptrStartY;
+  if (diff > 60 && window.scrollY === 0) {
+    ptrEl.classList.add('visible');
+    ptrEl.textContent = '↓ Release to refresh';
+  } else if (diff > 20 && window.scrollY === 0) {
+    ptrEl.classList.add('visible');
+    ptrEl.textContent = '↓ Pull to refresh';
+  } else {
+    ptrEl.classList.remove('visible');
+  }
+}, {passive:true});
+
+document.addEventListener('touchend', async e => {
+  if (!ptrActive) return;
+  ptrActive = false;
+  if (ptrEl.classList.contains('visible') && ptrEl.textContent.includes('Release')) {
+    ptrEl.textContent = '⟳ Refreshing...';
+    ptrEl.classList.add('refreshing');
+    await loadTripData();
+    // Also refresh comments if panel is showing them
+    if (activeCommentKey) { const user=getCommentUser(); if(user) loadAndRenderComments(activeCommentKey,user); }
+    checkNewComments();
+    setTimeout(() => { ptrEl.classList.remove('visible','refreshing'); }, 600);
+  } else {
+    ptrEl.classList.remove('visible');
+  }
+});
+
 updateProgress(); setInterval(updateProgress,60000);
 </script>
 </body>

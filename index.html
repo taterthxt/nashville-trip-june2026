@@ -371,6 +371,9 @@ async function loadTripData() {
   if (whData) { workHoursData = whData; }
   // Rebuild calendar after data loads
   buildCalendar();
+  // Also reload scheduled activities immediately
+  getCells().forEach(c => c.querySelectorAll('[data-sched]').forEach(el => el.remove()));
+  await loadScheduleFromFB();
 }
 
 const potentialActivities = [

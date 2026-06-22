@@ -336,6 +336,20 @@ const workSchedules = {};
 const events = {};
 let workHoursData = {};
 
+// === FIREBASE SETUP ===
+const DB_URL = 'https://family-trip---june-2026-default-rtdb.firebaseio.com';
+
+// Firebase REST helpers (no SDK needed — keeps it a single HTML file)
+async function fbGet(path) {
+  try { const r = await fetch(`${DB_URL}/${path}.json`); return await r.json(); } catch(e){ return null; }
+}
+async function fbPush(path, data) {
+  try { await fetch(`${DB_URL}/${path}.json`, {method:'POST', body:JSON.stringify(data), headers:{'Content-Type':'application/json'}}); } catch(e){}
+}
+async function fbDelete(path) {
+  try { await fetch(`${DB_URL}/${path}.json`, {method:'DELETE'}); } catch(e){}
+}
+
 // Load trip data from Firebase
 async function loadTripData() {
   const [wsData, evData, whData] = await Promise.all([
@@ -567,19 +581,6 @@ function openDayTimeline(dateStr) {
   panel.classList.add('open'); mainContent.classList.add('panel-open'); resetZoomOnOpen();
 }
 
-// === FIREBASE SETUP ===
-const DB_URL = 'https://family-trip---june-2026-default-rtdb.firebaseio.com';
-
-// Firebase REST helpers (no SDK needed — keeps it a single HTML file)
-async function fbGet(path) {
-  try { const r = await fetch(`${DB_URL}/${path}.json`); return await r.json(); } catch(e){ return null; }
-}
-async function fbPush(path, data) {
-  try { await fetch(`${DB_URL}/${path}.json`, {method:'POST', body:JSON.stringify(data), headers:{'Content-Type':'application/json'}}); } catch(e){}
-}
-async function fbDelete(path) {
-  try { await fetch(`${DB_URL}/${path}.json`, {method:'DELETE'}); } catch(e){}
-}
 
 // === COMMENT SYSTEM (Firebase-powered) ===
 function getCommentUser() { try { return localStorage.getItem('trip-comment-user')||''; } catch(e){ return ''; } }

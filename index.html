@@ -767,10 +767,14 @@ async function loadScheduleFromFB() {
 }
 loadScheduleFromFB();
 // Poll for schedule changes every 10s
+let lastScheduleJson = '';
 setInterval(async () => {
   // Skip if user is interacting with inputs
   if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
-  // Clear existing scheduled items and reload
+  const data = await fbGet('schedule');
+  const newJson = JSON.stringify(data || {});
+  if (newJson === lastScheduleJson) return; // No change, skip re-render
+  lastScheduleJson = newJson;
   getCells().forEach(c => c.querySelectorAll('[data-sched]').forEach(el => el.remove()));
   await loadScheduleFromFB();
 }, 10000);

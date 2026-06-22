@@ -332,64 +332,26 @@ const weather = {
   '7/5':{hi:87,lo:71,icon:'⛅',loc:'Bowling Green, KY'}
 };
 const rentalDates = ['6/24','6/25','6/26','6/27','6/28','6/29','6/30','7/1','7/2','7/3'];
-const workSchedules = {
-  Christian:[{d:'6/24',t:'10am–4:30pm'},{d:'6/25',t:'10am–4:30pm'},{d:'6/26',t:'10am–4:30pm'}],
-  Jesse:[{d:'6/26',t:'6am–6pm'},{d:'7/1',t:'6am–6pm'},{d:'7/2',t:'6am–6pm'}],
-  Kenzie:[{d:'6/24',t:'4pm–10pm'},{d:'6/26',t:'8am–4:30pm'},{d:'6/29',t:'1:30pm–10pm'},{d:'6/30',t:'12pm–6pm'},{d:'7/1',t:'3:30pm–10pm'},{d:'7/3',t:'7am–3:30pm'}],
-  Ben:[{d:'6/24',t:'2:30pm–10pm'},{d:'6/25',t:'12pm–8:30pm'},{d:'6/26',t:'3:30pm–10pm'},{d:'6/29',t:'12pm–6pm'},{d:'7/1',t:'2pm–10pm'},{d:'7/2',t:'2:30pm–10pm'},{d:'7/3',t:'9am–5:30pm'}],
-  Ace:[{d:'6/24',t:'1pm–10pm'},{d:'6/29',t:'1pm–10pm'},{d:'7/1',t:'1pm–10pm'}],
-  Sofia:[{d:'6/26',t:'7pm–7am'},{d:'6/27',t:'7pm–7am'},{d:'7/1',t:'7pm–7am'},{d:'7/2',t:'7pm–7am'}]
-};
+const workSchedules = {};
+const events = {};
+let workHoursData = {};
 
-// Events (activities only) — hrs:[startHour, endHour] for timeline (24h format)
-const events = {
-  '6/24':[
-    {type:'travel',title:'✈️ DEN→BNA',time:'5:40am–9:10am',who:['Christian'],detail:'Fly in, pick up rental.',drive:'Airport→Mom\'s: 45min–1hr',hrs:[5.5,9.5]},
-    {type:'confirmed',title:'🎵 Parade Practice',time:'After 4:30pm',who:['Christian'],detail:'Mount Juliet, coach\'s house.',hrs:[16.5,18]},
-    {type:'travel',title:'🚗 Drive to BG',time:'Evening',who:['Christian'],detail:'Mount Juliet → Bowling Green.',drive:'Mom\'s→BG: 30–45min',hrs:[19,20]}
-  ],
-  '6/25':[
-    {type:'confirmed',title:'🎵 Parade Practice',time:'6:30pm–8:00pm',who:['Christian'],detail:'Mount Juliet, coach\'s house.',hrs:[18.5,20]},
-    {type:'confirmed',title:'🍹 El Maz Thirsty Thurs',time:'Evening',who:['Jesse','Kenzie','Ace','Sofia'],detail:'Thirsty Thursday at El Maz.',hrs:[19,23]}
-  ],
-  '6/26':[
-    {type:'open',title:'🟢 Free Evening',time:'After 6pm',who:['Christian','Jesse','Kenzie','Ace'],detail:'Ben/Sofia working evening shifts.',hrs:[18,22]}
-  ],
-  '6/27':[
-    {type:'milestone',title:'🎺 Parade',time:'10:00am (2.5hrs)',who:everyone,detail:'Christian performing. Everyone watching.',hrs:[10,12.5]},
-    {type:'confirmed',title:'🍖 Seoul Garden KBBQ',time:'~1:00pm',who:['Christian','Jesse','Kenzie','Ben','Ace'],detail:'<a href="https://maps.google.com/maps?q=4928+Edmondson+Pike+%23101+Nashville+TN+37211" target="_blank" style="color:#58a6ff;">📍 4928 Edmondson Pike #101, Nashville, TN 37211</a>',hrs:[13,15]},
-    {type:'confirmed',title:'🏳️‍🌈 Pride Festival',time:'Afternoon',who:['Christian','Jesse','Kenzie','Ben','Ace'],detail:'After KBBQ.',hrs:[15,18]},
-    {type:'confirmed',title:'🌃 Night Out',time:'Evening',who:['Christian','Jesse','Kenzie','Ben','Ace'],detail:'Nashville night out.',hrs:[20,24]}
-  ],
-  '6/28':[
-    {type:'confirmed',title:'🥞 Hangover Brunch',time:'Morning',who:['Christian','Jesse','Kenzie','Ace','Sofia'],detail:'Recovery brunch.',hrs:[10,12]},
-    {type:'open',title:'🟢 Open Afternoon',time:'Afternoon',who:['Christian','Jesse','Kenzie','Ace','Sofia'],detail:'Ben working 2-10pm.',hrs:[13,17]}
-  ],
-  '6/29':[
-    {type:'open',title:'🟢 Open Day',time:'All day',who:['Christian','Jesse'],detail:'C & Jesse fully free. Others have shifts. Ace works 1-10pm.',hrs:[9,21]}
-  ],
-  '6/30':[
-    {type:'open',title:'🟢 Open Morning',time:'Until noon',who:['Christian','Jesse','Ben','Ace','Sofia'],detail:'Kenzie works 12-6pm.',hrs:[9,12]},
-    {type:'confirmed',title:'🍽️ Topper + Fishbowl',time:'Evening',who:everyone,detail:'Dinner at Topper + Fishbowl.',hrs:[18,21]}
-  ],
-  '7/1':[
-    {type:'open',title:'🟢 Open Morning',time:'Until 2pm',who:['Christian','Kenzie','Ace','Sofia'],detail:'Jesse all day, Ben/Kenzie afternoon.',hrs:[9,14]}
-  ],
-  '7/2':[
-    {type:'open',title:'🟢 Open Daytime',time:'Until 2:30pm',who:['Christian','Kenzie','Ace','Sofia'],detail:'Jesse all day, Ben starts 2:30pm.',hrs:[9,14.5]}
-  ],
-  '7/3':[
-    {type:'travel',title:'🚗 Leave for Spring Hill',time:'~4:00pm',who:everyone,detail:'Drop rental at BNA en route.',drive:'BG→Spring Hill: 1hr 40min–2hrs',hrs:[16,18]},
-    {type:'confirmed',title:'🔑 Rental Drop-off',time:'En route',who:['Christian','Jesse','Kenzie'],detail:'Drop car at airport, transfer to J/K\'s car.',hrs:[16.5,17]}
-  ],
-  '7/4':[
-    {type:'milestone',title:'🎆 4th of July Party',time:'All day',who:everyone,detail:'Party at Kenzie\'s family home.',hrs:[11,22]}
-  ],
-  '7/5':[
-    {type:'travel',title:'🚗 Head to Airport',time:'Daytime',who:everyone,detail:'*Could go SH→BNA direct (~45min) vs back to BG.',drive:'SH→BNA: ~45min',hrs:[15,16]},
-    {type:'travel',title:'✈️ BNA→DEN',time:'10:40pm–12:30am',who:['Christian'],detail:'Depart Nashville, land Denver 12:30am.',hrs:[22.5,24]}
-  ]
-};
+// Load trip data from Firebase
+async function loadTripData() {
+  const [wsData, evData, whData] = await Promise.all([
+    fbGet('workSchedules'),
+    fbGet('events'),
+    fbGet('workHours')
+  ]);
+  // Populate workSchedules
+  if (wsData) { Object.keys(wsData).forEach(k => { workSchedules[k] = wsData[k] || []; }); }
+  // Populate events (keys in Firebase use dash: "6-24", convert to "6/24")
+  if (evData) { Object.keys(evData).forEach(k => { events[k.replace('-','/')] = evData[k] || []; }); }
+  // Populate workHours
+  if (whData) { workHoursData = whData; }
+  // Rebuild calendar after data loads
+  buildCalendar();
+}
 
 const potentialActivities = [
   {id:'thrifting',label:'🛍️ Thrifting',desc:'Local thrift stores.'},
@@ -403,52 +365,55 @@ const potentialActivities = [
 // === BUILD CALENDAR (2 weeks: Jun 22–28, Jun 29–Jul 5) ===
 const calGrid = document.getElementById('cal-grid');
 const calDates = [
-  // Week 1: Sun Jun 21 – Sat Jun 27
   '6/21','6/22','6/23','6/24','6/25','6/26','6/27',
-  // Week 2: Sun Jun 28 – Sat Jul 4
   '6/28','6/29','6/30','7/1','7/2','7/3','7/4',
-  // Week 3: Sun Jul 5 (just one day)
   '7/5','7/6','7/7','7/8','7/9','7/10','7/11'
 ];
 const tripDates = ['6/24','6/25','6/26','6/27','6/28','6/29','6/30','7/1','7/2','7/3','7/4','7/5'];
 const today = new Date();
 const todayStr = `${today.getMonth()+1}/${today.getDate()}`;
 
-calDates.forEach(dateStr => {
-  const cell = document.createElement('div');
-  cell.className = 'cal-cell';
-  cell.dataset.date = dateStr;
-  const isTrip = tripDates.includes(dateStr);
-  if (!isTrip) { cell.classList.add('inactive'); cell.innerHTML = `<span class="date-num">${dateStr.split('/')[1]}</span>`; calGrid.appendChild(cell); return; }
-  if (dateStr === todayStr) cell.classList.add('today');
+function buildCalendar() {
+  // Remove old day cells (keep headers)
+  calGrid.querySelectorAll('.cal-cell').forEach(c => c.remove());
 
-  const dayNum = dateStr.split('/')[1];
-  const month = dateStr.startsWith('7') ? 'Jul' : 'Jun';
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const dateObj = new Date(2026, dateStr.startsWith('7') ? 6 : 5, parseInt(dayNum));
-  const dayName = dayNames[dateObj.getDay()];
-  const w = weather[dateStr];
-  const rental = rentalDates.includes(dateStr) ? '<span class="rental-badge">🚗</span>' : '';
-  const weatherLine = w ? `<div class="weather-line">${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}</div>` : '';
+  calDates.forEach(dateStr => {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    cell.dataset.date = dateStr;
+    const isTrip = tripDates.includes(dateStr);
+    if (!isTrip) { cell.classList.add('inactive'); cell.innerHTML = `<span class="date-num">${dateStr.split('/')[1]}</span>`; calGrid.appendChild(cell); return; }
+    if (dateStr === todayStr) cell.classList.add('today');
 
-  // Availability
-  let availHtml = '<div class="avail-row">';
-  everyone.forEach(p => {
-    const shift = (workSchedules[p]||[]).find(s => s.d === dateStr);
-    const cls = shift ? 'partial' : 'free';
-    availHtml += `<span class="avail-pip ${cls}">${p[0]}</span>`;
+    const dayNum = dateStr.split('/')[1];
+    const month = dateStr.startsWith('7') ? 'Jul' : 'Jun';
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dateObj = new Date(2026, dateStr.startsWith('7') ? 6 : 5, parseInt(dayNum));
+    const dayName = dayNames[dateObj.getDay()];
+    const w = weather[dateStr];
+    const rental = rentalDates.includes(dateStr) ? '<span class="rental-badge">🚗</span>' : '';
+    const weatherLine = w ? `<div class="weather-line">${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}</div>` : '';
+
+    let availHtml = '<div class="avail-row">';
+    everyone.forEach(p => {
+      const shift = (workSchedules[p]||[]).find(s => s.d === dateStr);
+      const cls = shift ? 'partial' : 'free';
+      availHtml += `<span class="avail-pip ${cls}">${p[0]}</span>`;
+    });
+    availHtml += '</div>';
+
+    let evHtml = '';
+    (events[dateStr]||[]).forEach((ev,i) => {
+      evHtml += `<div class="ev ev-${ev.type}" data-date="${dateStr}" data-idx="${i}">${ev.title}</div>`;
+    });
+
+    cell.innerHTML = `<span class="date-num">${month} ${dayNum} <span class="day-name">${dayName}</span></span>${rental}${weatherLine}${availHtml}${evHtml}`;
+    calGrid.appendChild(cell);
   });
-  availHtml += '</div>';
+}
 
-  // Events
-  let evHtml = '';
-  (events[dateStr]||[]).forEach((ev,i) => {
-    evHtml += `<div class="ev ev-${ev.type}" data-date="${dateStr}" data-idx="${i}">${ev.title}</div>`;
-  });
-
-  cell.innerHTML = `<span class="date-num">${month} ${dayNum} <span class="day-name">${dayName}</span></span>${rental}${weatherLine}${availHtml}${evHtml}`;
-  calGrid.appendChild(cell);
-});
+// Initial load from Firebase
+loadTripData();
 
 // === INTERACTIONS ===
 const panel = document.getElementById('detail-panel');
@@ -530,16 +495,6 @@ function openAvailPanel(dateStr) {
   panel.classList.add('open'); mainContent.classList.add('panel-open'); resetZoomOnOpen();
 }
 
-// Work schedule parsed to hours for timeline
-const workHours = {
-  Christian:[{d:'6/24',s:10,e:16.5},{d:'6/25',s:10,e:16.5},{d:'6/26',s:10,e:16.5}],
-  Jesse:[{d:'6/26',s:6,e:18},{d:'7/1',s:6,e:18},{d:'7/2',s:6,e:18}],
-  Kenzie:[{d:'6/24',s:16,e:22},{d:'6/26',s:8,e:16.5},{d:'6/29',s:13.5,e:22},{d:'6/30',s:12,e:18},{d:'7/1',s:15.5,e:22},{d:'7/3',s:7,e:15.5}],
-  Ben:[{d:'6/24',s:14.5,e:22},{d:'6/25',s:12,e:20.5},{d:'6/26',s:15.5,e:22},{d:'6/29',s:12,e:18},{d:'7/1',s:14,e:22},{d:'7/2',s:14.5,e:22},{d:'7/3',s:9,e:17.5}],
-  Ace:[{d:'6/24',s:13,e:22},{d:'6/29',s:13,e:22},{d:'7/1',s:13,e:22}],
-  Sofia:[{d:'6/26',s:19,e:24},{d:'6/27',s:19,e:24},{d:'7/1',s:19,e:24},{d:'7/2',s:19,e:24}]
-};
-
 // Person colors for work blocks
 const personColors = {Christian:'#58a6ff',Jesse:'#3EA535',Kenzie:'#a371f7',Ben:'#f85149',Ace:'#d29922',Sofia:'#ff69b4'};
 
@@ -562,7 +517,7 @@ function openDayTimeline(dateStr) {
   let blocksHtml = '';
   let colIdx = 0;
   everyone.forEach((person,pi) => {
-    const shifts = (workHours[person]||[]).filter(s => s.d === dateStr);
+    const shifts = (workHoursData[person]||[]).filter(s => s.d === dateStr);
     shifts.forEach(shift => {
       const top = (shift.s - startHour) * hourHeight;
       const height = (shift.e - shift.s) * hourHeight;
@@ -752,11 +707,11 @@ document.getElementById('notif-bubble').addEventListener('click', () => { markCo
 
 // === DRAG & DROP ===
 const chips = document.querySelectorAll('.activity-chip');
-const cells = document.querySelectorAll('.cal-cell:not(.inactive)');
+function getCells() { return document.querySelectorAll('.cal-cell:not(.inactive)'); }
 chips.forEach(chip => {
   chip.setAttribute('draggable','true');
   chip.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain',chip.dataset.activity); chip.classList.add('dragging'); });
-  chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); cells.forEach(c=>c.classList.remove('drag-over')); });
+  chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); getCells().forEach(c=>c.classList.remove('drag-over')); });
   chip.addEventListener('click', e => {
     e.stopPropagation();
     const act = potentialActivities.find(a=>a.id===chip.dataset.activity);
@@ -765,11 +720,10 @@ chips.forEach(chip => {
     else { panelContent.innerHTML=`<h2>${act.label}</h2><p>${act.desc}</p><p style="font-size:9px;color:#6e7681;">💡 Drag onto a day to schedule.</p>`; panel.classList.add('open'); mainContent.classList.add('panel-open'); }
   });
 });
-cells.forEach(cell => {
-  cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
-  cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
-  cell.addEventListener('drop', e => { e.preventDefault(); cell.classList.remove('drag-over'); const act=potentialActivities.find(a=>a.id===e.dataTransfer.getData('text/plain')); if(act){ if(act.id==='random'){const t=prompt('What activity?');if(t)addScheduled(cell,act,t);}else{addScheduled(cell,act);}} });
-});
+// Use event delegation on calGrid for drag events
+calGrid.addEventListener('dragover', e => { const cell=e.target.closest('.cal-cell:not(.inactive)'); if(cell){e.preventDefault(); cell.classList.add('drag-over');} });
+calGrid.addEventListener('dragleave', e => { const cell=e.target.closest('.cal-cell'); if(cell) cell.classList.remove('drag-over'); });
+calGrid.addEventListener('drop', e => { e.preventDefault(); const cell=e.target.closest('.cal-cell:not(.inactive)'); if(cell){cell.classList.remove('drag-over'); const act=potentialActivities.find(a=>a.id===e.dataTransfer.getData('text/plain')); if(act){if(act.id==='random'){const t=prompt('What activity?');if(t)addScheduled(cell,act,t);}else{addScheduled(cell,act);}}} });
 function addScheduled(cell, act, customLabel) {
   const schedId = customLabel ? `random-${customLabel.replace(/\s+/g,'-').toLowerCase()}-${Date.now()}` : act.id;
   if (!customLabel && cell.querySelector(`[data-sched="${act.id}"]`)) return;
@@ -782,7 +736,7 @@ function addScheduled(cell, act, customLabel) {
 }
 async function saveScheduleToFB() {
   const s = {};
-  cells.forEach(c => {
+  getCells().forEach(c => {
     const items = [...c.querySelectorAll('[data-sched]')].map(e => {
       const text = e.querySelector('span')?.textContent || e.dataset.sched;
       return {id: e.dataset.sched, label: text};
@@ -816,7 +770,7 @@ setInterval(async () => {
   // Skip if user is interacting with inputs
   if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
   // Clear existing scheduled items and reload
-  cells.forEach(c => c.querySelectorAll('[data-sched]').forEach(el => el.remove()));
+  getCells().forEach(c => c.querySelectorAll('[data-sched]').forEach(el => el.remove()));
   await loadScheduleFromFB();
 }, 10000);
 

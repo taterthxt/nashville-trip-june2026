@@ -67,6 +67,7 @@ body {
 .cal-cell.inactive { background:#080b10; opacity:0.3; pointer-events:none; }
 .cal-cell.today { background:#1a0a14; outline:2px solid #ff69b4; outline-offset:-2px; z-index:1; }
 .cal-cell .date-num { font-size:11px; font-weight:700; color:#58a6ff; margin-bottom:3px; }
+.cal-cell .date-num .day-name { display:none; }
 .cal-cell.today .date-num { color:#ff69b4; }
 .cal-cell .weather-line { font-size:7px; color:#6e7681; margin-bottom:2px; }
 .cal-cell .rental-badge { position:absolute; top:4px; right:4px; font-size:7px; opacity:0.6; }
@@ -178,7 +179,14 @@ body {
 .timeline-legend-item { display:flex; align-items:center; gap:3px; }
 .timeline-legend-swatch { width:10px; height:8px; border-radius:2px; }
 
-/* Day picker modal */
+/* Notification Bubble */
+.notif-bubble { position:fixed; top:12px; right:12px; z-index:250; background:#ff69b4; color:#0d1117; border-radius:20px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer; display:none; align-items:center; gap:4px; box-shadow:0 2px 12px rgba(255,105,180,.4); animation:notif-pulse 2s ease-in-out infinite; }
+.notif-bubble.visible { display:flex; }
+.notif-bubble .notif-count { background:#0d1117; color:#ff69b4; border-radius:10px; padding:1px 6px; font-size:10px; }
+@keyframes notif-pulse { 0%,100%{box-shadow:0 2px 12px rgba(255,105,180,.4)} 50%{box-shadow:0 2px 20px rgba(255,105,180,.7)} }
+
+/* Mention highlighting in comments */
+.mention { color:#ff69b4; font-weight:700; }
 .day-picker-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:300; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .2s; }
 .day-picker-overlay.visible { opacity:1; pointer-events:all; }
 .day-picker { background:#161b22; border:1px solid #30363d; border-radius:10px; padding:16px; width:90%; max-width:320px; max-height:70vh; overflow-y:auto; }
@@ -217,6 +225,7 @@ body {
   .cal-cell.inactive { display:none; }
   .cal-cell.today { outline:2px solid #ff69b4; outline-offset:-1px; background:#1a0a14; }
   .cal-cell .date-num { font-size:13px; margin-bottom:5px; }
+  .cal-cell .date-num .day-name { display:inline; font-weight:400; color:#484f58; font-size:11px; margin-left:4px; }
   .cal-cell .weather-line { font-size:9px; margin-bottom:4px; }
   .cal-cell .rental-badge { font-size:9px; top:10px; right:12px; }
   .avail-row { gap:3px; margin-bottom:5px; }
@@ -290,6 +299,9 @@ body {
   </div>
 </div>
 </div><!-- end main-content -->
+
+<!-- Notification Bubble -->
+<div class="notif-bubble" id="notif-bubble">💬 <span id="notif-text"></span></div>
 
 <!-- Day Picker Modal -->
 <div class="day-picker-overlay" id="day-picker-overlay">
@@ -412,6 +424,9 @@ calDates.forEach(dateStr => {
 
   const dayNum = dateStr.split('/')[1];
   const month = dateStr.startsWith('7') ? 'Jul' : 'Jun';
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dateObj = new Date(2026, dateStr.startsWith('7') ? 6 : 5, parseInt(dayNum));
+  const dayName = dayNames[dateObj.getDay()];
   const w = weather[dateStr];
   const rental = rentalDates.includes(dateStr) ? '<span class="rental-badge">🚗</span>' : '';
   const weatherLine = w ? `<div class="weather-line">${w.icon} ${w.hi}°/${w.lo}° • ${w.loc}</div>` : '';
@@ -431,7 +446,7 @@ calDates.forEach(dateStr => {
     evHtml += `<div class="ev ev-${ev.type}" data-date="${dateStr}" data-idx="${i}">${ev.title}</div>`;
   });
 
-  cell.innerHTML = `<span class="date-num">${month} ${dayNum}</span>${rental}${weatherLine}${availHtml}${evHtml}`;
+  cell.innerHTML = `<span class="date-num">${month} ${dayNum} <span class="day-name">${dayName}</span></span>${rental}${weatherLine}${availHtml}${evHtml}`;
   calGrid.appendChild(cell);
 });
 
@@ -622,6 +637,7 @@ function initComments(key) {
   const section = document.getElementById('comments-section');
   if (!section) return;
   activeCommentKey = key;
+  markCommentsSeen();
   const user = getCommentUser();
   if (!user) {
     section.innerHTML = `
@@ -664,7 +680,7 @@ function renderComments(key, user, comments) {
     <div class="comment-item">
       <div class="comment-author">${escHtml(c.author)}</div>
       <div class="comment-time">${c.time||''}</div>
-      <div class="comment-text">${escHtml(c.text)}</div>
+      <div class="comment-text">${renderMentions(c.text)}</div>
       ${c.author===user?`<span class="comment-delete" data-cid="${c.id}">delete</span>`:''}
     </div>
   `).join('');
@@ -697,6 +713,42 @@ async function postComment(key, user) {
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function renderMentions(s) { return escHtml(s).replace(/@(\w+)/g,'<span class="mention">@$1</span>'); }
+
+// === NOTIFICATION BUBBLE ===
+async function checkNewComments() {
+  const user = getCommentUser();
+  if (!user) return;
+  const lastSeen = parseInt(localStorage.getItem('trip-last-seen') || '0');
+  const data = await fbGet('comments');
+  if (!data) return;
+  let newCount = 0;
+  let mentionCount = 0;
+  Object.values(data).forEach(dayComments => {
+    if (!dayComments) return;
+    Object.values(dayComments).forEach(c => {
+      if (c.ts > lastSeen && c.author !== user) {
+        newCount++;
+        if (c.text && c.text.toLowerCase().includes('@' + user.toLowerCase())) mentionCount++;
+      }
+    });
+  });
+  const bubble = document.getElementById('notif-bubble');
+  const text = document.getElementById('notif-text');
+  if (newCount > 0) {
+    let msg = `${newCount} new`;
+    if (mentionCount > 0) msg += ` (${mentionCount} @you)`;
+    text.textContent = msg;
+    bubble.classList.add('visible');
+  } else {
+    bubble.classList.remove('visible');
+  }
+}
+// Mark as seen when opening any comment panel
+function markCommentsSeen() { localStorage.setItem('trip-last-seen', String(Date.now())); checkNewComments(); }
+// Check on load and every 15s
+checkNewComments(); setInterval(checkNewComments, 15000);
+document.getElementById('notif-bubble').addEventListener('click', () => { markCommentsSeen(); });
 
 // === DRAG & DROP ===
 const chips = document.querySelectorAll('.activity-chip');
